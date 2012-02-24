@@ -1,0 +1,17 @@
+Config { font = "xft:Sans-9:bold"
+       , bgColor = "black"
+       , fgColor = "grey"
+       , position = TopW L 95
+       , lowerOnStart = False
+       , commands = [	Run StdinReader
+       							,	Run Network "eth0" ["-L","0","-H","32","--normal","green","--high","red"] 10
+                    , Run Network "wlan0" ["-L","0","-H","32","--normal","green","--high","red"] 10
+                    , Run Date "%a %b %_d %Y %I:%M:%S %p" "date" 10
+                    , Run Com "xmobar_net.sh" [] "net" 10
+                    , Run Com "xmobar_bat.sh" [] "batt" 10
+                    , Run Com "xmobar_vol.pl" [] "vol" 1
+                    ]
+       , sepChar = "%"
+       , alignSep = "}{"
+       , template = "%StdinReader%}{%net% | %vol% | %batt% | <fc=#ee9a00>%date%</fc>"
+       }
