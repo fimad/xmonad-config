@@ -11,7 +11,8 @@ echo $FLAG
 #Esetroot $HOME/Pictures/space/Sun_small.png 
 #Esetroot -scale $HOME/Pictures/space/Earth.jpg 
 #Esetroot -center $HOME/Pictures/space/as08-13-2329.jpg
-Esetroot -center $HOME/Pictures/space/o-HIGH-DEFINITION-EARTH-PICTURE-900.jpg
+#Esetroot -center $HOME/Pictures/space/o-HIGH-DEFINITION-EARTH-PICTURE-900.jpg
+Esetroot -center $HOME/Pictures/space/Red_Planet.jpg
 
 #disable the tap to click
 synclient TapButton1=0

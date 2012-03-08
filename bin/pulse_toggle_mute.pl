@@ -1,9 +1,9 @@
 #!/usr/bin/perl
 
-my $ismuted = `echo "list-sinks" | pacmd | grep "muted: no"`;
+my $ismuted = `pulse_is_muted.pl`;
 chomp $ismuted;
 
-if( $ismuted ne "" ){
+if( $ismuted eq "0" ){
 	`echo "set-sink-mute 0 1" | pacmd`;
 }else{
 	`echo "set-sink-mute 0 0" | pacmd`;

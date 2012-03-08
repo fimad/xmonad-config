@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 
-my $ismuted = `echo "list-sinks" | pacmd | grep "muted: no"`;
+my $ismuted = `echo "list-sinks" | pacmd | grep "muted: yes"`;
 chomp $ismuted;
 
 if( $ismuted ne "" ){
-	print "0\n";
-}else{
 	print "1\n";
+}else{
+	print "0\n";
 }
