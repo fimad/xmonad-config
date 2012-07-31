@@ -10,8 +10,9 @@ Config { font = "xft:Sans-9:bold"
                     , Run Com "xmobar_net.sh" [] "net" 10
                     , Run Com "xmobar_bat.sh" [] "batt" 10
                     , Run Com "xmobar_vol.pl" [] "vol" 1
+                    , Run Com "days_till_jess.sh" [] "jess" 100
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%StdinReader%}{%net% | %vol% | %batt% | <fc=#ee9a00>%date%</fc>"
+       , template = "%StdinReader%}{%jess%%net% | %vol% | %batt% | <fc=#ee9a00>%date%</fc>"
        }

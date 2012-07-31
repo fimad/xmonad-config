@@ -12,7 +12,9 @@ echo $FLAG
 #Esetroot -scale $HOME/Pictures/space/Earth.jpg 
 #Esetroot -center $HOME/Pictures/space/as08-13-2329.jpg
 #Esetroot -center $HOME/Pictures/space/o-HIGH-DEFINITION-EARTH-PICTURE-900.jpg
-Esetroot -center $HOME/Pictures/space/Red_Planet.jpg
+#Esetroot -center $HOME/Pictures/space/Red_Planet.jpg
+#Esetroot -center $HOME/Pictures/space/newrings_cassini_big.jpg
+Esetroot -center $HOME/Pictures/space/Earth_Rise.jpg
 
 #disable the tap to click
 synclient TapButton1=0
@@ -30,6 +32,11 @@ if [ "`ps -A | egrep ' instantbird-bin$'`" == "" ]; then
 fi
 if [ "`ps -A | egrep ' skype$'`" == "" ]; then
 	skype &
+fi
+
+#only really needed at Emmanual College, Cambridge
+if [ "`ps -A | egrep ' untangler.pl$'`" == "" ]; then
+	~/Coding/untangler/untangler.pl &
 fi
 
 #start your alarm clock
