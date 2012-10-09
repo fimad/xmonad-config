@@ -87,10 +87,10 @@ myAdditionalKeys = [
   ((controlMask .|. mod1Mask, xK_semicolon), spawn "thunderbird"),
   ((controlMask .|. mod1Mask, xK_Return), spawn "terminator"),
   ((controlMask .|. mod1Mask, xK_backslash), spawn "gvim"),
-  ((controlMask .|. mod1Mask, xK_Page_Up), spawn "amixer -c 0 set Master 3dB+"),
-  ((controlMask .|. mod1Mask, xK_Page_Down), spawn "amixer -c 0 set Master 3dB-"),
+  ((controlMask .|. mod1Mask, xK_Page_Up), spawn "~/.xmonad/bin/pulse_control.pl -inc"),
+  ((controlMask .|. mod1Mask, xK_Page_Down), spawn "~/.xmonad/bin/pulse_control.pl -dec"),
   --((controlMask .|. mod1Mask, xK_End), spawn "amixer -c 0 set Master toggle"),
-  ((controlMask .|. mod1Mask, xK_End), spawn "pulse_toggle_mute.pl"),
+  ((controlMask .|. mod1Mask, xK_End), spawn "~/.xmonad/bin/pulse_control.pl -toggle"),
   ((mod4Mask, xK_b), withFocused toggleBorder ) ,
   ((mod4Mask, xK_f), (do
                       withFocused float

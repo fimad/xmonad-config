@@ -11,7 +11,7 @@ use Time::HiRes qw( usleep nanosleep );
 # Settings
 ################################################################################
 
-my $StatusBarWidth = 1350;
+my $StatusBarWidth = 1190;
 my $StatusBarSections = [.40, .20, .40];
 
 my $Separator = " | ";
@@ -142,10 +142,10 @@ sub battery{
 }
 
 sub volume{
-  my $info = `amixer -c 0 get Master | grep 'Mono:'`;
+  my $info = `~/.xmonad/bin/pulse_control.pl -vol`;
   chomp $info;
-  if( $info =~ m/\[([0-9]+)%\]/ ){
-    if( `pulse_is_muted.pl` eq "1\n" ){
+  if( $info =~ m/([0-9]+)%/ ){
+    if( `~/.xmonad/bin/pulse_control.pl -is-muted` eq "1\n" ){
       return "[[$1]]";
     }else{
       return "((^fg(white)$1^fg()))";
@@ -156,7 +156,8 @@ sub volume{
 }
 
 sub internet_ether{
-  my $ip=`ifconfig eth0 | sed -rn 's/.*inet addr:([^ ]*).*/\\1/gp'`;
+  my( $dev ) = @_;
+  my $ip=`ifconfig $dev | sed -rn 's/.*inet addr:([^ ]*).*/\\1/gp'`;
   my $color = "#BA2929";
   if( $ip =~ m/.{3,}/ ){
 #$color = "#24C943";
@@ -166,16 +167,18 @@ sub internet_ether{
 }
 
 sub internet_ether_verbose{
+  my( $dev ) = @_;
   my $color = "#BA2929";
-  my $ip=`ifconfig eth0 | sed -rn 's/.*inet addr:([^ ]*).*/\\1/gp'`;
+  my $ip=`ifconfig $dev | sed -rn 's/.*inet addr:([^ ]*).*/\\1/gp'`;
   chomp $ip;
   $color = "#00aaff" if $ip != "";
   $ip = "Not Connected" if $ip == "";
-  return "eth0: ^fg($color)$ip^fg()";
+  return "$dev: ^fg($color)$ip^fg()";
 }
 
 sub internet_wifi{
-  my $ip=`ifconfig wlan0 | sed -rn 's/.*inet addr:([^ ]*).*/\\1/gp'`;
+  my( $dev ) = @_;
+  my $ip=`ifconfig $dev | sed -rn 's/.*inet addr:([^ ]*).*/\\1/gp'`;
   my $color = "#BA2929";
   if( $ip =~ m/.{3,}/ ){
 #$color = "#24C943";
@@ -186,10 +189,11 @@ sub internet_wifi{
 }
 
 sub internet_wifi_verbose{
+  my( $dev ) = @_;
   my $color = "#BA2929";
-  my $ip=`ifconfig wlan0 | sed -rn 's/.*inet addr:([^ ]*).*/\\1/gp'`;
-  my $wlanAP=`iwconfig wlan0 | sed -rn 's/.*ESSID:"([^"]*).*/\\1/gp'`;
-  my $wlanQ=`iwconfig wlan0 | sed -rn 's/.*Link Quality=([^ ]*).*/\\1*100/gp' | bc -l | sed 's/\\..*/%/g'`;
+  my $ip=`ifconfig $dev | sed -rn 's/.*inet addr:([^ ]*).*/\\1/gp'`;
+  my $wlanAP=`iwconfig $dev | sed -rn 's/.*ESSID:"([^"]*).*/\\1/gp'`;
+  my $wlanQ=`iwconfig $dev | sed -rn 's/.*Link Quality=([^ ]*).*/\\1*100/gp' | bc -l | sed 's/\\..*/%/g'`;
   my $wifi_info = "";
   chomp $wlanAP;
   chomp $wlanQ;
@@ -197,7 +201,7 @@ sub internet_wifi_verbose{
   $color = "#00aaff" if $ip != "";
   $wifi_info = " ($wlanAP @ $wlanQ)" if $ip != "";
   $ip = "Not Connected" if $ip == "";
-  return "wlan0: ^fg($color)$ip^fg()$wifi_info";
+  return "$dev: ^fg($color)$ip^fg()$wifi_info";
 }
 
 
@@ -246,12 +250,12 @@ while( 1 ){
   my $time = "^fg(#ee9a00)" . strftime('%a %b %_d %Y %I:%M:%S %p',localtime);
 
 #title window
-  print DZEN "^tw()" . formatText($StatusBarSections, [$xmonad_status, daysTillJess, separate(internet_ether,internet_wifi,volume,battery,$time)]);
+  print DZEN "^tw()" . formatText($StatusBarSections, [$xmonad_status, daysTillJess, separate(internet_ether("eth0"), internet_ether("eth1"),volume,$time)]);
 #slave window
   if( $i % 1000 == 0 ){ #only update the slave every 1000
 #  print DZEN "^cs()\n";
-    print DZEN formatText($StatusBarSections, ["", "", internet_wifi_verbose]);
-    print DZEN formatText($StatusBarSections, ["", "", internet_ether_verbose]);
+    print DZEN formatText($StatusBarSections, ["", "", internet_ether_verbose("eth0")]);
+    print DZEN formatText($StatusBarSections, ["", "", internet_ether_verbose("eth1")]);
   }
 
 
