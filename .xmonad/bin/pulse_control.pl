@@ -16,7 +16,7 @@ GetOptions(
 	,	"dec-vol" => \$_DEC_VOL
 );
 
-my $sink = `cat ~/.xmonad/pulse-sink.conf`;
+my $sink = `pactl info | sed -rn 's/^Default Sink: (.+)\$/\\1/gp'`;
 chomp $sink;
 
 sub ismuted{
