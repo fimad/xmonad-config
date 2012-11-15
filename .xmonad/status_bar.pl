@@ -11,7 +11,9 @@ use Time::HiRes qw( usleep nanosleep );
 # Settings
 ################################################################################
 
-my $StatusBarWidth = 1190;
+my $Xres = `xrandr 2>&1 | sed -r 's/[\sx]+/ /g' | grep '*' | cut -d " " -f 4 -`;
+chomp $Xres;
+my $StatusBarWidth = $Xres - 50;
 my $StatusBarSections = [.40, .20, .40];
 
 my $Separator = " | ";
@@ -250,12 +252,12 @@ while( 1 ){
   my $time = "^fg(#ee9a00)" . strftime('%a %b %_d %Y %I:%M:%S %p',localtime);
 
 #title window
-  print DZEN "^tw()" . formatText($StatusBarSections, [$xmonad_status, daysTillJess, separate(internet_ether("eth0"), internet_ether("eth1"),volume,$time)]);
+  print DZEN "^tw()" . formatText($StatusBarSections, [$xmonad_status, daysTillJess, separate(internet_ether("eth0"), internet_wifi("wlan0"),volume,battery,$time)]);
 #slave window
   if( $i % 1000 == 0 ){ #only update the slave every 1000
 #  print DZEN "^cs()\n";
     print DZEN formatText($StatusBarSections, ["", "", internet_ether_verbose("eth0")]);
-    print DZEN formatText($StatusBarSections, ["", "", internet_ether_verbose("eth1")]);
+    print DZEN formatText($StatusBarSections, ["", "", internet_wifi_verbose("wlan0")]);
   }
 
 
