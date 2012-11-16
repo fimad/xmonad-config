@@ -265,7 +265,8 @@ while( 1 ){
     $StatusBarSections
     , [
           $xmonad_status
-        , daysTillJess
+#        , daysTillJess
+        , ""
         , separate(
             internet_ether("eth0")
           , internet_wifi("wlan0")
