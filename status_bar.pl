@@ -5,34 +5,45 @@ use FileHandle; # needed for the autoflush call on DZEN
 use POSIX qw/strftime/;
 use Date::Parse;
 use Time::HiRes qw( usleep nanosleep );
+use POSIX qw(floor ceil);
 
 
 ################################################################################
 # Settings
 ################################################################################
 
-my $Xres = `xrandr 2>&1 | sed -r 's/[\sx]+/ /g' | grep '*' | cut -d " " -f 4 -`;
+my $Xres = `xrandr 2>&1 | sed -r 's/[\\sx]+/ /g' | grep '*' | cut -d " " -f 4 -`;
 chomp $Xres;
 my $StatusBarWidth = $Xres - 50;
-my $StatusBarSections = [.40, .20, .40];
+my $StatusBarSections = [.45, .10, .45];
+
+my $StatusBarBG = "#002b36";
+my $StatusBarFG = "#839496";
 
 my $Separator = " | ";
-my $SeparatorFG = "#444444";
-my $SeparatorBG = "#000000";
+my $SeparatorFG = "#073642";
+my $SeparatorBG = "$StatusBarBG";
 
-my $StatusBarBG = "#000000";
-my $StatusBarFG = "#AAAAAA";
-
-my $CurrentSpaceFG = "#F5CC16";
+my $CurrentSpaceFG = "#b58900";
 my $CurrentSpaceBG = $StatusBarBG;
 my $SpaceFG = $StatusBarFG;
 my $SpaceBG = $StatusBarBG;
 
-my $SpaceLayoutFG = "#CF5519";
+my $SpaceLayoutFG = "#cb4b16";
 my $SpaceLayoutBG = $StatusBarBG;
 
-my $WindowTitleFG = "#59CF59";
+my $WindowTitleFG = "#859900";
 my $WindowTitleBG = $StatusBarBG;
+
+my $TimeFG = "#cb4b16";
+
+my $BatteryFull = '#859900';
+my $BatteryHalf = '#b58900';
+my $BatteryEmpty = '#dc322f';
+my $BatteryCharging = '#268bd2';
+
+my $NetworkConnected = '#268bd2';
+my $NetworkDisconnected = '#dc322f';
 
 my %LayoutReplacements = (
     "Hinted Tall" => "|||"
@@ -53,7 +64,7 @@ sub color{
 }
 
 sub textWidth{
-  return int($StatusBarWidth / 7) - 2;
+  return int($StatusBarWidth / 7)-3;
 }
 
 #calculates length ignoring command sequences
@@ -70,7 +81,7 @@ sub popCommands{
   return $text;
 }
 
-#takes 2 3 element arrays for each section of the bar (left, center, right)
+#takes 2 3-element arrays for each section of the bar (left, center, right)
 #The first is the percent of the bar to a lot to each secttion
 #The second is the text to put in each section
 sub formatText{
@@ -79,7 +90,7 @@ sub formatText{
   my $output = "";
 
   for my $i (0 .. 2){
-    my $maxLen = int(textWidth() * $divisions->[$i])+1;
+    my $maxLen = floor(textWidth() * $divisions->[$i] + .5);
 
 #truncate text if needed
     my $text = $texts->[$i];
@@ -95,7 +106,7 @@ sub formatText{
     }
     elsif( $i == 1 ){
       my $padding = ($maxLen - realLength($text)) / 2.0;
-      $text = (" "x int($padding)) . $text . (" "x int($padding+.999));
+      $text = (" "x floor($padding)) . $text . (" "x floor($padding+.5));
     }
     elsif( $i == 2 ){ #right justify
       $text = " "x($maxLen - realLength($text)) . $text;
@@ -127,20 +138,20 @@ sub battery{
   my $max_chg = `cat /sys/class/power_supply/BAT0/charge_full`;
   my $prc_chg = int(($cur_chg/$max_chg) * 100 + .5);
   my $sts_chg = `cat /sys/class/power_supply/BAT0/status`;
-  my $grn_amt = int(($prc_chg/50) * 255);
-  my $red_amt = int((1 - (($prc_chg-50)/50)) * 255);
 
-	my $color="#55ccff"; #blue for charging
+	my $color="$BatteryCharging"; #blue for charging
 
   if( $sts_chg =~ m/Discharging/ ){
-    if( $prc_chg > 50 ){
-      $color = sprintf("#%02xff00", $red_amt);
+    if( $prc_chg > 66 ){
+      $color = $BatteryFull;
+    }elsif( $prc_chg > 33 ){
+      $color = $BatteryFull;
     }else{
-      $color = sprintf("#ff%02x00", $grn_amt);
+      $color = $BatteryEmpty;
     }
   }
 
-  return "^fg($color)$prc_chg%^fg()";
+  return color($color, $prc_chg);
 }
 
 sub volume{
@@ -160,31 +171,29 @@ sub volume{
 sub internet_ether{
   my( $dev ) = @_;
   my $ip=`ifconfig $dev | sed -rn 's/.*inet addr:([^ ]*).*/\\1/gp'`;
-  my $color = "#BA2929";
+  my $color = "$NetworkDisconnected";
   if( $ip =~ m/.{3,}/ ){
-#$color = "#24C943";
-    $color = "#00aaff";
+    $color = "$NetworkConnected";
   }
   return "[^fg($color)=^fg()]" ;
 }
 
 sub internet_ether_verbose{
   my( $dev ) = @_;
-  my $color = "#BA2929";
+  my $color = "$NetworkDisconnected";
   my $ip=`ifconfig $dev | sed -rn 's/.*inet addr:([^ ]*).*/\\1/gp'`;
   chomp $ip;
-  $color = "#00aaff" if $ip != "";
-  $ip = "Not Connected" if $ip == "";
+  $color = "$NetworkConnected" if $ip ne "";
+  $ip = "Not Connected" if $ip eq "";
   return "$dev: ^fg($color)$ip^fg()";
 }
 
 sub internet_wifi{
   my( $dev ) = @_;
   my $ip=`ifconfig $dev | sed -rn 's/.*inet addr:([^ ]*).*/\\1/gp'`;
-  my $color = "#BA2929";
+  my $color = "$NetworkDisconnected";
   if( $ip =~ m/.{3,}/ ){
-#$color = "#24C943";
-    $color = "#00aaff";
+    $color = "$NetworkConnected";
   }
   return
       "^fg($color)\\|/^fg()" ;
@@ -192,7 +201,7 @@ sub internet_wifi{
 
 sub internet_wifi_verbose{
   my( $dev ) = @_;
-  my $color = "#BA2929";
+  my $color = "$NetworkDisconnected";
   my $ip=`ifconfig $dev | sed -rn 's/.*inet addr:([^ ]*).*/\\1/gp'`;
   my $wlanAP=`iwconfig $dev | sed -rn 's/.*ESSID:"([^"]*).*/\\1/gp'`;
   my $wlanQ=`iwconfig $dev | sed -rn 's/.*Link Quality=([^ ]*).*/\\1*100/gp' | bc -l | sed 's/\\..*/%/g'`;
@@ -200,9 +209,9 @@ sub internet_wifi_verbose{
   chomp $wlanAP;
   chomp $wlanQ;
   chomp $ip;
-  $color = "#00aaff" if $ip != "";
-  $wifi_info = " ($wlanAP @ $wlanQ)" if $ip != "";
-  $ip = "Not Connected" if $ip == "";
+  $color = "$NetworkConnected" if $ip ne "";
+  $wifi_info = " ($wlanAP @ $wlanQ)" if $ip ne "";
+  $ip = "Not Connected" if $ip eq"";
   return "$dev: ^fg($color)$ip^fg()$wifi_info";
 }
 
@@ -242,17 +251,30 @@ sub getXmonadStatus{
 ################################################################################
 
 `killall -9 dzen2 2> /dev/null`; #THERE CAN BE ONLY ONE
-open(DZEN, "|-", "dzen2 -e 'entertitle=grabmouse;leavetitle=ungrabmouse;button3=togglecollapse' -l 2 -ta l -bg $StatusBarBG -fg $StatusBarFG -tw $StatusBarWidth") or die ("Unable to start dzen");
+open(DZEN, "|-", "dzen2 -e 'entertitle=grabmouse;leavetitle=ungrabmouse;button3=togglecollapse' -l 2 -ta l -bg '$StatusBarBG' -fg '$StatusBarFG' -tw '$StatusBarWidth'") or die ("Unable to start dzen");
 DZEN->autoflush(1);
 
 my $i = 0;
 while( 1 ){
   my $xmonad_status = getXmonadStatus();
   
-  my $time = "^fg(#ee9a00)" . strftime('%a %b %_d %Y %I:%M:%S %p',localtime);
+  my $time = "^fg($TimeFG)" . strftime('%a %b %_d %Y %I:%M:%S %p',localtime);
 
 #title window
-  print DZEN "^tw()" . formatText($StatusBarSections, [$xmonad_status, daysTillJess, separate(internet_ether("eth0"), internet_wifi("wlan0"),volume,battery,$time)]);
+  print DZEN "^tw()" . formatText(
+    $StatusBarSections
+    , [
+          $xmonad_status
+        , daysTillJess
+        , separate(
+            internet_ether("eth0")
+          , internet_wifi("wlan0")
+          , volume
+          , battery
+          , $time
+          )
+      ]
+  );
 #slave window
   if( $i % 1000 == 0 ){ #only update the slave every 1000
 #  print DZEN "^cs()\n";
