@@ -134,6 +134,7 @@ main = do
   h <- spawnPipe "~/.xmonad/status_bar.pl"
   xmonad $ ewmh $ defaultConfig {
       focusedBorderColor = "#cb4b16"
+    , normalBorderColor = "#002b36"
     , manageHook = manageDocks <+> myManager
     , layoutHook = avoidStruts
                  $ onWorkspace "IM" myImLayout
