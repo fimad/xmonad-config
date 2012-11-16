@@ -14,6 +14,7 @@ use POSIX qw(floor ceil);
 
 my $Xres = `xrandr 2>&1 | sed -r 's/[\\sx]+/ /g' | grep '*' | cut -d " " -f 4 -`;
 chomp $Xres;
+$Xres /=2 if( $Xres > 2000 ); #hack for multimonitors
 my $StatusBarWidth = $Xres - 50;
 my $StatusBarSections = [.45, .10, .45];
 
@@ -269,9 +270,8 @@ while( 1 ){
         , ""
         , separate(
             internet_ether("eth0")
-          , internet_wifi("wlan0")
+          , internet_wifi("eth1")
           , volume
-          , battery
           , $time
           )
       ]
@@ -280,7 +280,7 @@ while( 1 ){
   if( $i % 1000 == 0 ){ #only update the slave every 1000
 #  print DZEN "^cs()\n";
     print DZEN formatText($StatusBarSections, ["", "", internet_ether_verbose("eth0")]);
-    print DZEN formatText($StatusBarSections, ["", "", internet_wifi_verbose("wlan0")]);
+    print DZEN formatText($StatusBarSections, ["", "", internet_wifi_verbose("eth1")]);
   }
 
 
