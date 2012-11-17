@@ -276,8 +276,9 @@ while( 1 ){
         , ""
         , separate(
             internet_ether("eth0")
-          , internet_wifi("eth1")
+          , internet_wifi("wlan0")
           , volume
+          , battery
           , $time
           )
       ]
@@ -286,7 +287,7 @@ while( 1 ){
   if( $i % 1000 == 0 ){ #only update the slave every 1000
 #  print DZEN "^cs()\n";
     print DZEN formatText($StatusBarSections, ["", "", internet_ether_verbose("eth0")]);
-    print DZEN formatText($StatusBarSections, ["", "", internet_wifi_verbose("eth1")]);
+    print DZEN formatText($StatusBarSections, ["", "", internet_wifi_verbose("wlan0")]);
   }
 
 

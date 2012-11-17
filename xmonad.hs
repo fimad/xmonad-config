@@ -141,6 +141,7 @@ main = do
   xmonad $ ewmh $ defaultConfig {
       focusedBorderColor = "#cb4b16"
     , normalBorderColor = "#002b36"
+    , handleEventHook = fullscreenEventHook
     , manageHook = manageDocks <+> myManager
     , layoutHook = avoidStruts
                  $ onWorkspace "IM" myImLayout
