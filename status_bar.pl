@@ -247,7 +247,7 @@ sub getXmonadStatus{
     $_xmonadStatus =~
       s/<OTHER>([^\<]+)<\/OTHER>/^fg($OtherSpaceFG)^bg($OtherSpaceBG)$1^fg()^bg()/g;
     $_xmonadStatus =~
-      s/<TITLE>([^\<]+)<\/TITLE>/^fg($WindowTitleFG)^bg($WindowTitleBG)$1^fg()^bg()/g;
+      s/<TITLE>([^\<]*)<\/TITLE>/^fg($WindowTitleFG)^bg($WindowTitleBG)$1^fg()^bg()/g;
   }
   return " $_xmonadStatus";
 }
