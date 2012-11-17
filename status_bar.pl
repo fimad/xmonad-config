@@ -27,8 +27,8 @@ my $SeparatorBG = "$StatusBarBG";
 
 my $CurrentSpaceFG = "#b58900";
 my $CurrentSpaceBG = $StatusBarBG;
-my $OtherSpaceFG = "#93a1a1";
-my $OtherSpaceBG = "#073642";
+my $OtherSpaceFG = "#6c71c4";
+my $OtherSpaceBG = "$StatusBarBG";
 my $SpaceFG = $StatusBarFG;
 my $SpaceBG = $StatusBarBG;
 
@@ -245,7 +245,7 @@ sub getXmonadStatus{
     $_xmonadStatus =~
       s/<CURRENT>([^\<]+)<\/CURRENT>/^fg($CurrentSpaceFG)^bg($CurrentSpaceBG)$1^fg()^bg()/g;
     $_xmonadStatus =~
-      s/<OTHER>([^\<]+)<\/OTHER>/^fg($OtherSpaceFG)^bg($OtherSpaceBG)$1^fg()^bg()/g;
+      s/ <VISIBLE>([^\<]+)<\/VISIBLE>/^fg($OtherSpaceFG)^bg($OtherSpaceBG) $1^fg()^bg()/g;
     $_xmonadStatus =~
       s/<TITLE>([^\<]*)<\/TITLE>/^fg($WindowTitleFG)^bg($WindowTitleBG)$1^fg()^bg()/g;
   }
@@ -278,7 +278,6 @@ while( 1 ){
             internet_ether("eth0")
           , internet_wifi("eth1")
           , volume
-          , battery
           , $time
           )
       ]
