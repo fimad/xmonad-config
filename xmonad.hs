@@ -155,7 +155,7 @@ main = do
 printStatusBar :: Handle -> PP
 printStatusBar h = defaultPP {
     ppCurrent = (\c -> concat ["<CURRENT>[",c,"]</CURRENT>"])
-  , ppVisible = (\c -> concat ["<VISIBLE>",c,"</VISIBLE>"])
+  , ppVisible = (\c -> concat ["<VISIBLE>(",c,")</VISIBLE>"])
   , ppTitle   = (\c -> dzenEscape $ concat ["<TITLE>",c,"</TITLE>"])
   , ppLayout  = (\c -> concat ["<LAYOUT>",c,"</LAYOUT>"])
   , ppSep = " "
