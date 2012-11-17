@@ -1,24 +1,30 @@
-import XMonad
-import XMonad.Hooks.DynamicLog	
+import System.IO
 import System.Process
+import Data.Ratio ((%))
+
+import XMonad
+import qualified XMonad.StackSet as W
+
 import XMonad.Util.Run
+import XMonad.Util.WorkspaceCompare
 import XMonad.Util.EZConfig(additionalKeys)
+
+import XMonad.Hooks.DynamicLog	
 import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.EwmhDesktops
+
+import XMonad.Actions.CycleWS
+import XMonad.Actions.NoBorders
 import XMonad.Actions.DynamicWorkspaces
-import XMonad.Layout.PerWorkspace
+import XMonad.Actions.PhysicalScreens	as PS
+
 import XMonad.Layout
 import XMonad.Layout.IM
 import XMonad.Layout.Grid
 import XMonad.Layout.Reflect 
-import Data.Ratio ((%))
-import XMonad.Util.WorkspaceCompare
-import XMonad.Actions.CycleWS
-import XMonad.Layout.LayoutHints	
-import qualified XMonad.StackSet as W
-import XMonad.Actions.PhysicalScreens	as PS
-import XMonad.Hooks.EwmhDesktops
 import XMonad.Layout.NoBorders
-import XMonad.Actions.NoBorders
+import XMonad.Layout.LayoutHints	
+import XMonad.Layout.PerWorkspace
 
 
 {-------------------------------------------------------------------------------
@@ -38,7 +44,7 @@ myGimpLayout = withIM (1%7) (Role "gimp-toolbox")
 myFSLayout = noBorders Full
 
 -- Use the standard layout for each of the
-myDefaultLayout = layoutHints $ layoutHook defaultConfig
+myDefaultLayout = smartBorders $ layoutHints $ layoutHook defaultConfig
 
 
 {-------------------------------------------------------------------------------
@@ -143,11 +149,18 @@ main = do
                  $ myDefaultLayout
     , workspaces = myWorkspaces
     , modMask = mod4Mask -- Use the window key
-    , logHook = dynamicLogWithPP
-              $ dzenPP {
-                  ppOutput = hPutStrLn h
-                }
+    , logHook = dynamicLogWithPP $ printStatusBar h
   } `additionalKeys` myAdditionalKeys
+
+printStatusBar :: Handle -> PP
+printStatusBar h = defaultPP {
+    ppCurrent = (\c -> concat ["<CURRENT>[",c,"]</CURRENT>"])
+  , ppVisible = (\c -> concat ["<VISIBLE>",c,"</VISIBLE>"])
+  , ppTitle   = (\c -> dzenEscape $ concat ["<TITLE>",c,"</TITLE>"])
+  , ppLayout  = (\c -> concat ["<LAYOUT>",c,"</LAYOUT>"])
+  , ppSep = " "
+  , ppOutput = hPutStrLn h
+}
 
 
 {-------------------------------------------------------------------------------

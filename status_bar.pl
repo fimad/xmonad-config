@@ -27,6 +27,8 @@ my $SeparatorBG = "$StatusBarBG";
 
 my $CurrentSpaceFG = "#b58900";
 my $CurrentSpaceBG = $StatusBarBG;
+my $OtherSpaceFG = "#93a1a1";
+my $OtherSpaceBG = "#073642";
 my $SpaceFG = $StatusBarFG;
 my $SpaceBG = $StatusBarBG;
 
@@ -46,11 +48,14 @@ my $BatteryCharging = '#268bd2';
 my $NetworkConnected = '#268bd2';
 my $NetworkDisconnected = '#dc322f';
 
+my $VolumeUnmuted = "#eee8d5";
+
 my %LayoutReplacements = (
     "Hinted Tall" => "|||"
   , "Hinted Mirror Tall" => "==="
   , "IM ReflectX IM Grid" => "IM"
   , "IM ReflectX IM Full" => "Gimp"
+  , "Hinted Full" => "[ ]"
   , "Full" => "[ ]"
 );
 
@@ -152,7 +157,7 @@ sub battery{
     }
   }
 
-  return color($color, $prc_chg);
+  return color($color, "$prc_chg%");
 }
 
 sub volume{
@@ -162,7 +167,7 @@ sub volume{
     if( `~/.xmonad/bin/pulse_control.pl -is-muted` eq "1\n" ){
       return "[[$1]]";
     }else{
-      return "((^fg(white)$1^fg()))";
+      return "((^fg($VolumeUnmuted)$1^fg()))";
     }
   }else{
     return "([~~])";
@@ -232,16 +237,17 @@ sub getXmonadStatus{
 #perform any layout replacements that apply
     for my $from (keys %LayoutReplacements){
       my $to = $LayoutReplacements{$from};
-      $_xmonadStatus =~ s/(\^fg\(black\)\^bg\(#cccccc\)) $from (\^fg\(\)\^bg\(\)\^bg\(#324c80\))/$1 $to $2/g;
+      $_xmonadStatus =~ s/(<LAYOUT>)$from(<\/LAYOUT>)/$1$to$2/g;
     }
 #format the space layout
-    $_xmonadStatus =~ s/\^fg\(black\)\^bg\(#cccccc\) ([^\^]+) \^fg\(\)\^bg\(\)\^bg\(#324c80\)/^fg($SpaceLayoutFG)^bg($SpaceLayoutBG)$1^fg()^bg($StatusBarBG)^bg(#324c80)/g;
-#format non selected spaces
-    $_xmonadStatus =~ s/\^fg\(black\)\^bg\(#cccccc\) ([^\^]+) \^fg\(\)\^bg\(\)/^fg($SpaceFG)^bg($SpaceBG)$1 ^fg()^bg($StatusBarBG)/g;
-#format the selected space
-    $_xmonadStatus =~ s/\^fg\(white\)\^bg\(#2b4f98\) ([^\^]+) \^fg\(\)\^bg\(\)/^fg($CurrentSpaceFG)^bg($CurrentSpaceBG)[$1] ^fg()^bg($StatusBarBG)/g;
-#format the title text
-    $_xmonadStatus =~ s/\^bg\(#324c80\)/^fg($WindowTitleFG)^bg($WindowTitleBG)/g;
+    $_xmonadStatus =~
+      s/<LAYOUT>([^\<]+)<\/LAYOUT>/^fg($SpaceLayoutFG)^bg($SpaceLayoutBG)$1^fg()^bg()/g;
+    $_xmonadStatus =~
+      s/<CURRENT>([^\<]+)<\/CURRENT>/^fg($CurrentSpaceFG)^bg($CurrentSpaceBG)$1^fg()^bg()/g;
+    $_xmonadStatus =~
+      s/<OTHER>([^\<]+)<\/OTHER>/^fg($OtherSpaceFG)^bg($OtherSpaceBG)$1^fg()^bg()/g;
+    $_xmonadStatus =~
+      s/<TITLE>([^\<]+)<\/TITLE>/^fg($WindowTitleFG)^bg($WindowTitleBG)$1^fg()^bg()/g;
   }
   return " $_xmonadStatus";
 }
@@ -272,6 +278,7 @@ while( 1 ){
             internet_ether("eth0")
           , internet_wifi("eth1")
           , volume
+          , battery
           , $time
           )
       ]
