@@ -101,6 +101,7 @@ myAdditionalKeys = [
   , ((controlMask .|. mod1Mask, xK_apostrophe), spawn "wicd-client -n")
   , ((controlMask .|. mod1Mask, xK_Return), spawn "terminator")
   , ((controlMask .|. mod1Mask, xK_backslash), spawn "gvim")
+  , ((mod4Mask, xK_p), spawn "dmenu_run -nb '#002b36' -nf '#839496' -sb '#073642' -sf '#93a1a1' -fn '-*-fixed-*-*-*-*-*-*-*-*-*-*-*-*'")
 
   -- Audio Key configuration
   , ((controlMask .|. mod1Mask, xK_Page_Up), spawn "~/.xmonad/bin/pulse_control.pl -inc")
