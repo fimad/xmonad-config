@@ -151,7 +151,7 @@ sub battery{
     if( $prc_chg > 66 ){
       $color = $BatteryFull;
     }elsif( $prc_chg > 33 ){
-      $color = $BatteryFull;
+      $color = $BatteryHalf;
     }else{
       $color = $BatteryEmpty;
     }
@@ -245,7 +245,7 @@ sub getXmonadStatus{
     $_xmonadStatus =~
       s/<CURRENT>([^\<]+)<\/CURRENT>/^fg($CurrentSpaceFG)^bg($CurrentSpaceBG)$1^fg()^bg()/g;
     $_xmonadStatus =~
-      s/ <VISIBLE>([^\<]+)<\/VISIBLE>/^fg($OtherSpaceFG)^bg($OtherSpaceBG) $1^fg()^bg()/g;
+      s/<VISIBLE>([^\<]+)<\/VISIBLE>/^fg($OtherSpaceFG)^bg($OtherSpaceBG)$1^fg()^bg()/g;
     $_xmonadStatus =~
       s/<TITLE>([^\<]*)<\/TITLE>/^fg($WindowTitleFG)^bg($WindowTitleBG)$1^fg()^bg()/g;
   }
