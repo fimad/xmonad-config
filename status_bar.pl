@@ -133,12 +133,6 @@ sub separate{
 # Widgets
 ################################################################################
 
-sub daysTillJess{
-  my $pomona = strftime("%s",localtime (str2time "9/1/2012"));
-  my $days = int( ($pomona - time) / (60*60*24) + .99);
-  return "$days DAYS!";
-}
-
 sub battery{
   my $cur_chg = `cat /sys/class/power_supply/BAT0/charge_now`;
   my $max_chg = `cat /sys/class/power_supply/BAT0/charge_full`;
@@ -272,7 +266,6 @@ while( 1 ){
     $StatusBarSections
     , [
           $xmonad_status
-#        , daysTillJess
         , ""
         , separate(
             internet_ether("eth0")
