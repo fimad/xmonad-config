@@ -133,12 +133,6 @@ sub separate{
 # Widgets
 ################################################################################
 
-sub daysTillJess{
-  my $pomona = strftime("%s",localtime (str2time "9/1/2012"));
-  my $days = int( ($pomona - time) / (60*60*24) + .99);
-  return "$days DAYS!";
-}
-
 sub battery{
   my $cur_chg = `cat /sys/class/power_supply/BAT0/charge_now`;
   my $max_chg = `cat /sys/class/power_supply/BAT0/charge_full`;
@@ -151,7 +145,7 @@ sub battery{
     if( $prc_chg > 66 ){
       $color = $BatteryFull;
     }elsif( $prc_chg > 33 ){
-      $color = $BatteryFull;
+      $color = $BatteryHalf;
     }else{
       $color = $BatteryEmpty;
     }
@@ -245,7 +239,7 @@ sub getXmonadStatus{
     $_xmonadStatus =~
       s/<CURRENT>([^\<]+)<\/CURRENT>/^fg($CurrentSpaceFG)^bg($CurrentSpaceBG)$1^fg()^bg()/g;
     $_xmonadStatus =~
-      s/ <VISIBLE>([^\<]+)<\/VISIBLE>/^fg($OtherSpaceFG)^bg($OtherSpaceBG) $1^fg()^bg()/g;
+      s/<VISIBLE>([^\<]+)<\/VISIBLE>/^fg($OtherSpaceFG)^bg($OtherSpaceBG)$1^fg()^bg()/g;
     $_xmonadStatus =~
       s/<TITLE>([^\<]*)<\/TITLE>/^fg($WindowTitleFG)^bg($WindowTitleBG)$1^fg()^bg()/g;
   }
@@ -272,7 +266,6 @@ while( 1 ){
     $StatusBarSections
     , [
           $xmonad_status
-#        , daysTillJess
         , ""
         , separate(
             internet_ether("eth0")
