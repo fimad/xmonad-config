@@ -16,7 +16,7 @@ my $Xres = `xrandr 2>&1 | sed -r 's/[\\sx]+/ /g' | grep '*' | cut -d " " -f 4 -`
 chomp $Xres;
 $Xres /=2 if( $Xres > 2000 ); #hack for multimonitors
 my $StatusBarWidth = $Xres - 50;
-my $StatusBarSections = [.45, .10, .45];
+my $StatusBarSections = [.35, .30, .35];
 
 my $StatusBarBG = "#002b36";
 my $StatusBarFG = "#839496";
@@ -49,6 +49,9 @@ my $NetworkConnected = '#268bd2';
 my $NetworkDisconnected = '#dc322f';
 
 my $VolumeUnmuted = "#eee8d5";
+
+my $MPDPlaying = '#859900';
+my $MPDStopped = '#dc322f';
 
 my %LayoutReplacements = (
     "Hinted Tall" => "|||"
@@ -248,6 +251,27 @@ sub getXmonadStatus{
 
 
 ################################################################################
+# MPD Status Reading
+################################################################################
+
+sub getMPDStatus{
+    my $status = `mpc status`;
+    my @lines = split(/\n/, $status);
+    my $status_line = "";
+    if( scalar @lines == 3 ){
+        $status_line = "^fg($MPDStopped)";
+        $status_line = "^fg($MPDPlaying)" if( $status =~ m/\[playing\]/ );
+        if( $status =~ m/\#([0-9]+\/[0-9]+)/){
+          $status_line .= "($1) ";
+        }
+        $status_line .= $lines[0];
+        $status_line .= "^fg()";
+    }
+    return $status_line;
+}
+
+
+################################################################################
 # Update Loop
 ################################################################################
 
@@ -258,7 +282,7 @@ DZEN->autoflush(1);
 my $i = 0;
 while( 1 ){
   my $xmonad_status = getXmonadStatus();
-  
+  my $mpd_status = getMPDStatus();
   my $time = "^fg($TimeFG)" . strftime('%a %b %_d %Y %I:%M:%S %p',localtime);
 
 #title window
@@ -266,7 +290,7 @@ while( 1 ){
     $StatusBarSections
     , [
           $xmonad_status
-        , ""
+        , $mpd_status
         , separate(
             internet_ether("eth0")
           , internet_ether("eth0")

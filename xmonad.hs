@@ -108,6 +108,16 @@ myAdditionalKeys = [
   , ((controlMask .|. mod1Mask, xK_Page_Down), spawn "~/.xmonad/bin/pulse_control.pl -dec")
   , ((controlMask .|. mod1Mask, xK_End), spawn "~/.xmonad/bin/pulse_control.pl -toggle")
 
+  -- MPD/C control, Note: set up $MPD_HOST to have all computers be a remote for
+  -- a main host.
+  , ((controlMask .|. shiftMask, xK_space), spawn "mpc toggle")
+  , ((controlMask .|. shiftMask, xK_n), spawn "mpc next")
+  , ((controlMask .|. shiftMask, xK_p), spawn "mpc prev")
+  , ((controlMask .|. shiftMask, xK_a), spawn "~/.xmonad/bin/mpc_adder.pl")
+  , ((controlMask .|. shiftMask, xK_A), spawn "~/.xmonad/bin/mpc_adder.pl artist")
+  , ((controlMask .|. shiftMask, xK_c), spawn "~/.xmonad/bin/mpc_chooser.pl")
+  , ((controlMask .|. shiftMask, xK_k), spawn "mpc clear")
+
   -- Useful key strokes for dealing with apps that should go full screen but
   -- don't really.
   , ((mod4Mask, xK_b), withFocused toggleBorder ) 
