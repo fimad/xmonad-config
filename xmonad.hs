@@ -113,8 +113,8 @@ myAdditionalKeys = [
   , ((controlMask .|. shiftMask, xK_space), spawn "mpc toggle")
   , ((controlMask .|. shiftMask, xK_n), spawn "mpc next")
   , ((controlMask .|. shiftMask, xK_p), spawn "mpc prev")
-  , ((controlMask .|. shiftMask, xK_a), spawn "~/.xmonad/bin/mpc_adder.pl")
-  , ((controlMask .|. shiftMask, xK_A), spawn "~/.xmonad/bin/mpc_adder.pl artist")
+  , ((controlMask .|. shiftMask, xK_a), spawn "~/.xmonad/bin/mpc_adder.pl artist")
+  , ((controlMask .|. shiftMask, xK_l), spawn "~/.xmonad/bin/mpc_adder.pl")
   , ((controlMask .|. shiftMask, xK_c), spawn "~/.xmonad/bin/mpc_chooser.pl")
   , ((controlMask .|. shiftMask, xK_k), spawn "mpc clear")
 
