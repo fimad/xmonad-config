@@ -1,5 +1,6 @@
 import System.IO
 import System.Process
+import qualified Data.Map as M
 import Data.Ratio ((%))
 
 import XMonad
@@ -7,11 +8,13 @@ import qualified XMonad.StackSet as W
 
 import XMonad.Util.Run
 import XMonad.Util.WorkspaceCompare
-import XMonad.Util.EZConfig(additionalKeys)
+import XMonad.Util.EZConfig
 
 import XMonad.Hooks.DynamicLog	
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.EwmhDesktops
+import XMonad.Hooks.FadeInactive
+
 
 import XMonad.Actions.CycleWS
 import XMonad.Actions.NoBorders
@@ -62,6 +65,7 @@ myWorkspaceKeys = [xK_1, xK_2, xK_3, xK_4, xK_5, xK_6, xK_7, xK_8, xK_9, xK_0, x
 -------------------------------------------------------------------------------}
 myManager = composeAll [
     title =? "xfce4-notifyd" --> doIgnore
+    , title =? "html-hud" --> doFloat
 	, className =? "stalonetray" --> doIgnore
 	, className =? "net-minecraft-LauncherFrame" --> doFloat
 
@@ -94,6 +98,7 @@ myAdditionalKeys = [
   -- Print screen
     ((controlMask, xK_Print), spawn "sleep 0.2; scrot -s")
   , ((0, xK_Print), spawn "scrot")
+  
 
   -- Commonly run programs
   , ((controlMask .|. mod1Mask, xK_bracketright), spawn "thunar")
@@ -102,6 +107,8 @@ myAdditionalKeys = [
   , ((controlMask .|. mod1Mask, xK_Return), spawn "terminator")
   , ((controlMask .|. mod1Mask, xK_backslash), spawn "gvim")
   , ((mod4Mask, xK_p), spawn "dmenu_run -nb '#002b36' -nf '#839496' -sb '#073642' -sf '#93a1a1' -fn '-*-fixed-*-*-*-*-*-*-*-*-*-*-*-*'")
+  -- Don't use dmenu_run, using hmenu_run
+  -- , ((mod4Mask, xK_p), spawn "hmenu_run")
 
   -- Audio Key configuration
   , ((controlMask .|. mod1Mask, xK_Page_Up), spawn "~/.xmonad/bin/pulse_control.pl -inc")
@@ -152,6 +159,7 @@ main = do
   xmonad $ ewmh $ defaultConfig {
       focusedBorderColor = "#cb4b16"
     , normalBorderColor = "#002b36"
+    , borderWidth = 1
     , handleEventHook = fullscreenEventHook
     , manageHook = manageDocks <+> myManager
     , layoutHook = avoidStruts
@@ -161,8 +169,9 @@ main = do
                  $ myDefaultLayout
     , workspaces = myWorkspaces
     , modMask = mod4Mask -- Use the window key
+    --, logHook = fadeInactiveLogHook (1%3) >> (dynamicLogWithPP $ printStatusBar h)
     , logHook = dynamicLogWithPP $ printStatusBar h
-  } `additionalKeys` myAdditionalKeys
+  } `removeKeys` map fst myAdditionalKeys `additionalKeys` myAdditionalKeys
 
 printStatusBar :: Handle -> PP
 printStatusBar h = defaultPP {
