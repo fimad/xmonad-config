@@ -137,12 +137,17 @@ sub separate{
 ################################################################################
 
 sub battery{
+
+  if( not -e "/sys/class/power_supply/BAT0/charge_now" ){
+      return;
+  }
+  
   my $cur_chg = `cat /sys/class/power_supply/BAT0/charge_now`;
   my $max_chg = `cat /sys/class/power_supply/BAT0/charge_full`;
   my $prc_chg = int(($cur_chg/$max_chg) * 100 + .5);
   my $sts_chg = `cat /sys/class/power_supply/BAT0/status`;
 
-	my $color="$BatteryCharging"; #blue for charging
+  my $color="$BatteryCharging"; #blue for charging
 
   if( $sts_chg =~ m/Discharging/ ){
     if( $prc_chg > 66 ){
@@ -218,6 +223,21 @@ sub internet_wifi_verbose{
   return "$dev: ^fg($color)$ip^fg()$wifi_info";
 }
 
+#determine our network interfaces
+my @interfaces = split /\n/, `ifconfig -s -a | sed -rn 's/^(wlan[0-9]+ |eth[01] |wifi[0-9]+ ).+\$/\\1/gp'`;
+
+sub internet_all{
+    my @devices = ();
+    for my $int (@interfaces){
+        if($int =~ m/^e/){
+            @devices = (@devices, internet_ether($int));
+        }else{
+            @devices = (@devices, internet_wifi($int));
+        }
+    }
+    return @devices;
+}
+
 
 ################################################################################
 # XMonad Status Reading
@@ -276,7 +296,7 @@ sub getMPDStatus{
 ################################################################################
 
 `killall -9 dzen2 2> /dev/null`; #THERE CAN BE ONLY ONE
-open(DZEN, "|-", "dzen2 -e 'entertitle=grabmouse;leavetitle=ungrabmouse;button3=togglecollapse' -l 2 -ta l -bg '$StatusBarBG' -fg '$StatusBarFG' -tw '$StatusBarWidth'") or die ("Unable to start dzen");
+open(DZEN, "|-", "dzen2 -ta l -bg '$StatusBarBG' -fg '$StatusBarFG' -tw '$StatusBarWidth'") or die ("Unable to start dzen");
 DZEN->autoflush(1);
 
 my $i = 0;
@@ -292,23 +312,13 @@ while( 1 ){
           $xmonad_status
         , $mpd_status
         , separate(
-            internet_ether("eth0")
-          , #internet_ether("eth1")
-          , internet_wifi("wlan0")
+            internet_all()
           , volume
           , battery
           , $time
           )
       ]
   );
-#slave window
-  if( $i % 1000 == 0 ){ #only update the slave every 1000
-#  print DZEN "^cs()\n";
-    print DZEN formatText($StatusBarSections, ["", "", internet_ether_verbose("eth0")]);
-    #print DZEN formatText($StatusBarSections, ["", "", internet_ether_verbose("eth1")]);
-    print DZEN formatText($StatusBarSections, ["", "", internet_wifi_verbose("wlan0")]);
-  }
-
 
   usleep(500);
   $i++;
