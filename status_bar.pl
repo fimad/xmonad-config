@@ -6,11 +6,15 @@ use POSIX qw/strftime/;
 use Date::Parse;
 use Time::HiRes qw( usleep nanosleep );
 use POSIX qw(floor ceil);
+use IO::Select;
 
 
 ################################################################################
 # Settings
 ################################################################################
+
+my $stdinSelect = IO::Select->new();
+$stdinSelect->add(\*STDIN);
 
 my $Xres = `xrandr 2>&1 | sed -r 's/[\\sx]+/ /g' | grep '*' | cut -d " " -f 4 -`;
 my $Yres = `xrandr 2>&1 | sed -r 's/[\\sx_]+/ /g' | grep '*' | cut -d " " -f 5 -`;
@@ -248,11 +252,16 @@ sub internet_all{
 my $_xmonadStatus = "";
 sub getXmonadStatus{
   my $rid = '';
+  my $newStatus = 0;
   vec ($rid, fileno(STDIN), 1) = 1;
-  if( select($rid,undef,undef,0.25) >= 0 && vec($rid, fileno(STDIN), 1)){
-    $_xmonadStatus= <STDIN>;
+  while( select($rid,undef,undef,0.005) >= 0 && vec($rid, fileno(STDIN), 1)){
+#  while( $stdinSelect->can_read(.05) ){
+    $_xmonadStatus = <STDIN>;
     chomp $_xmonadStatus;
+    $newStatus = 1;
+  }
 
+  if( $newStatus ){
 #perform any layout replacements that apply
     for my $from (keys %LayoutReplacements){
       my $to = $LayoutReplacements{$from};
@@ -268,6 +277,7 @@ sub getXmonadStatus{
     $_xmonadStatus =~
       s/<TITLE>([^\<]*)<\/TITLE>/^fg($WindowTitleFG)^bg($WindowTitleBG)$1^fg()^bg()/g;
   }
+
   return " $_xmonadStatus";
 }
 
@@ -296,6 +306,10 @@ sub getMPDStatus{
 ################################################################################
 # Update Loop
 ################################################################################
+
+#kill previous status_bars
+`killall -9 xmonad_status_bar`;
+$0 = "xmonad_status_bar";
 
 `killall -9 dzen2 2> /dev/null`; #THERE CAN BE ONLY ONE
 open(DZEN, "|-", "dzen2 -ta l -bg '$StatusBarBG' -fg '$StatusBarFG' -tw '$StatusBarWidth'") or die ("Unable to start dzen");
@@ -328,7 +342,7 @@ while( 1 ){
       ]
   );
 
-  usleep(250);
+  usleep(150);
   $i++;
 }
 
