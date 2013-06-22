@@ -13,7 +13,9 @@ use POSIX qw(floor ceil);
 ################################################################################
 
 my $Xres = `xrandr 2>&1 | sed -r 's/[\\sx]+/ /g' | grep '*' | cut -d " " -f 4 -`;
+my $Yres = `xrandr 2>&1 | sed -r 's/[\\sx_]+/ /g' | grep '*' | cut -d " " -f 5 -`;
 chomp $Xres;
+chomp $Yres;
 $Xres /=2 if( $Xres > 2000 ); #hack for multimonitors
 my $StatusBarWidth = $Xres - 50;
 my $StatusBarSections = [.35, .30, .35];
@@ -299,6 +301,10 @@ sub getMPDStatus{
 open(DZEN, "|-", "dzen2 -ta l -bg '$StatusBarBG' -fg '$StatusBarFG' -tw '$StatusBarWidth'") or die ("Unable to start dzen");
 DZEN->autoflush(1);
 
+my $irc_bar_y = $Yres-18;
+open(DZEN_IRC, "|-", "dzen2 -y $irc_bar_y -ta c -bg '$StatusBarBG' -fg '$StatusBarFG' -tw '$StatusBarWidth'") or die ("Unable to start dzen");
+DZEN_IRC->autoflush(1);
+
 my $i = 0;
 while( 1 ){
   my $xmonad_status = getXmonadStatus();
@@ -306,6 +312,8 @@ while( 1 ){
   my $time = "^fg($TimeFG)" . strftime('%a %b %_d %Y %I:%M:%S %p',localtime);
 
 #title window
+  my $irc_status = `tail -n 1 ~/Dropbox/irclogs/dangerbear/#greatestguys.log`;
+  print DZEN_IRC "^tw()$irc_status";
   print DZEN "^tw()" . formatText(
     $StatusBarSections
     , [
@@ -320,7 +328,7 @@ while( 1 ){
       ]
   );
 
-  usleep(500);
+  usleep(250);
   $i++;
 }
 
