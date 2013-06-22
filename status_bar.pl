@@ -226,15 +226,19 @@ sub internet_wifi_verbose{
 }
 
 #determine our network interfaces
-my @interfaces = split /\n/, `ifconfig -s -a | sed -rn 's/^(wlan[0-9]+ |eth[01] |wifi[0-9]+ ).+\$/\\1/gp'`;
+my @interfaces = split /\n/, `ifconfig -s -a | sed -rn 's/^(wlan[0-9]+ |br[0-9]+ |eth[01] |wifi[0-9]+ ).+\$/\\1/gp'`;
 
 sub internet_all{
     my @devices = ();
     for my $int (@interfaces){
-        if($int =~ m/^e/){
+        if($int =~ m/^e|b/){
             @devices = (@devices, internet_ether($int));
         }else{
             @devices = (@devices, internet_wifi($int));
+        }
+        #short circuit if we're bridged and weird shit is happening...
+        if($int =~ m/^|b/){
+            return @devices;
         }
     }
     return @devices;
