@@ -8,4 +8,6 @@ synclient TapButton1=0
 
 killall stalonetray
 stalonetray &
+dropbox start
+xflux -z 94110
 #xcompmgr &
