@@ -10,11 +10,10 @@ import XMonad.Util.Run
 import XMonad.Util.WorkspaceCompare
 import XMonad.Util.EZConfig
 
-import XMonad.Hooks.DynamicLog	
-import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
-import XMonad.Hooks.FadeInactive
-
+import XMonad.Hooks.ICCCMFocus
+import XMonad.Hooks.ManageDocks
 
 import XMonad.Actions.CycleWS
 import XMonad.Actions.NoBorders
@@ -24,9 +23,9 @@ import XMonad.Actions.PhysicalScreens	as PS
 import XMonad.Layout
 import XMonad.Layout.IM
 import XMonad.Layout.Grid
-import XMonad.Layout.Reflect 
+import XMonad.Layout.Reflect
 import XMonad.Layout.NoBorders
-import XMonad.Layout.LayoutHints	
+import XMonad.Layout.LayoutHints
 import XMonad.Layout.PerWorkspace
 
 
@@ -37,8 +36,9 @@ myImLayout = withIM (1%7) (Role "buddy_list") skypeLayout
 	where
 		skypeLayout = reflectHoriz
 		            $ withIM (1%7) skype Grid
-		skype = Title "fsmismynantidrug - Skype™ (Beta)" `Or` Title "Skype™ 2.2 (Beta) for Linux"
-		
+		skype = Title "fsmismynantidrug - Skype™ (Beta)"
+		        `Or` Title "Skype™ 2.2 (Beta) for Linux"
+
 myGimpLayout = withIM (1%7) (Role "gimp-toolbox")
              $ reflectHoriz
              $ withIM (1%7) (Role "gimp-dock") Full
@@ -61,11 +61,11 @@ myWorkspaceKeys = [xK_1, xK_2, xK_3, xK_4, xK_5, xK_6, xK_7, xK_8, xK_9, xK_0, x
 
 {-------------------------------------------------------------------------------
   - Handle all the applications that fuck up when they are run in a tiled window
-  - manager 
+  - manager
 -------------------------------------------------------------------------------}
 myManager = composeAll [
     title =? "xfce4-notifyd" --> doIgnore
-    , title =? "html-hud" --> doFloat
+  , title =? "html-hud" --> doFloat
 	, className =? "stalonetray" --> doIgnore
 	, className =? "net-minecraft-LauncherFrame" --> doFloat
 
@@ -98,7 +98,7 @@ myAdditionalKeys = [
   -- Print screen
     ((controlMask, xK_Print), spawn "sleep 0.2; scrot -s")
   , ((0, xK_Print), spawn "scrot")
-  
+
 
   -- Commonly run programs
   , ((controlMask .|. mod1Mask, xK_bracketright), spawn "thunar")
@@ -127,7 +127,7 @@ myAdditionalKeys = [
 
   -- Useful key strokes for dealing with apps that should go full screen but
   -- don't really.
-  , ((mod4Mask, xK_b), withFocused toggleBorder ) 
+  , ((mod4Mask, xK_b), withFocused toggleBorder )
   , ((mod4Mask, xK_f), (do
                       withFocused float
                       withFocused rmBorder
@@ -137,7 +137,7 @@ myAdditionalKeys = [
   -- Generate the key bindings for all of our workspaces
   (
     concat
-    $ map ( \(key,view) -> 
+    $ map ( \(key,view) ->
             [
                 -- Switch the primary screen to the view
                 ((mod4Mask, key), windows $ W.greedyView view)
@@ -164,13 +164,14 @@ main = do
     , manageHook = manageDocks <+> myManager
     , layoutHook = avoidStruts
                  $ onWorkspace "IM" myImLayout
-                 $ onWorkspace "Gimp" myGimpLayout 
-                 $ onWorkspace "Wine" myFSLayout 
+                 $ onWorkspace "Gimp" myGimpLayout
+                 $ onWorkspace "Wine" myFSLayout
                  $ myDefaultLayout
     , workspaces = myWorkspaces
     , modMask = mod4Mask -- Use the window key
-    --, logHook = fadeInactiveLogHook (1%3) >> (dynamicLogWithPP $ printStatusBar h)
-    , logHook = dynamicLogWithPP $ printStatusBar h
+    --, logHook = fadeInactiveLogHook (1%3)
+    --            >> (dynamicLogWithPP $ printStatusBar h)
+    , logHook = takeTopFocus >> (dynamicLogWithPP $ printStatusBar h)
   } `removeKeys` map fst myAdditionalKeys `additionalKeys` myAdditionalKeys
 
 printStatusBar :: Handle -> PP

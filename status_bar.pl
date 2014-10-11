@@ -16,12 +16,14 @@ use IO::Select;
 my $stdinSelect = IO::Select->new();
 $stdinSelect->add(\*STDIN);
 
+my $font = "-*-terminus-*-*-*--12-*-*-*-*-*-*-*";
+
 my $Xres = `xrandr 2>&1 | sed -r 's/[\\sx]+/ /g' | grep '*' | cut -d " " -f 4 -`;
 my $Yres = `xrandr 2>&1 | sed -r 's/[\\sx_]+/ /g' | grep '*' | cut -d " " -f 5 -`;
 chomp $Xres;
 chomp $Yres;
 $Xres /=2 if( $Xres > 2000 ); #hack for multimonitors
-my $StatusBarWidth = $Xres - 50;
+my $StatusBarWidth = $Xres - 75;
 my $StatusBarSections = [.35, .30, .35];
 
 my $StatusBarBG = "#002b36";
@@ -79,7 +81,7 @@ sub color{
 }
 
 sub textWidth{
-  return int($StatusBarWidth / 7)-3;
+  return int($StatusBarWidth / 6)-3;
 }
 
 #calculates length ignoring command sequences
@@ -101,7 +103,7 @@ sub popCommands{
 #The second is the text to put in each section
 sub formatText{
   my($divisions,$texts) = @_;
-  
+
   my $output = "";
 
   for my $i (0 .. 2){
@@ -147,7 +149,7 @@ sub battery{
   if( not -e "/sys/class/power_supply/BAT0/charge_now" ){
       return;
   }
-  
+
   my $cur_chg = `cat /sys/class/power_supply/BAT0/charge_now`;
   my $max_chg = `cat /sys/class/power_supply/BAT0/charge_full`;
   my $prc_chg = int(($cur_chg/$max_chg) * 100 + .5);
@@ -316,11 +318,11 @@ sub getMPDStatus{
 $0 = "xmonad_status_bar";
 
 `killall -9 dzen2 2> /dev/null`; #THERE CAN BE ONLY ONE
-open(DZEN, "|-", "dzen2 -ta l -bg '$StatusBarBG' -fg '$StatusBarFG' -tw '$StatusBarWidth'") or die ("Unable to start dzen");
+open(DZEN, "|-", "dzen2 -e '' -ta l -fn $font -bg '$StatusBarBG' -fg '$StatusBarFG' -tw '$StatusBarWidth'") or die ("Unable to start dzen");
 DZEN->autoflush(1);
 
-my $irc_bar_y = $Yres-18;
-open(DZEN_IRC, "|-", "dzen2 -y $irc_bar_y -ta c -bg '$StatusBarBG' -fg '$StatusBarFG' -tw '$StatusBarWidth'") or die ("Unable to start dzen");
+my $irc_bar_y = $Yres-12;
+open(DZEN_IRC, "|-", "dzen2 -e '' -y $irc_bar_y -ta c -fn $font -bg '$StatusBarBG' -fg '$StatusBarFG' -tw '$StatusBarWidth'") or die ("Unable to start dzen");
 DZEN_IRC->autoflush(1);
 
 my $i = 0;
@@ -346,7 +348,7 @@ while( 1 ){
       ]
   );
 
-  usleep(150);
+  usleep(500);
   $i++;
 }
 

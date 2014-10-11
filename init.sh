@@ -8,7 +8,15 @@ synclient TapButton1=0
 
 killall stalonetray
 stalonetray &
+
 dropbox start &
-killall xflux
-xflux -z 94110 &
+
+killall redshift
+redshift -l 37.7749:-122.4194 &
+
+killall skype
+skype &
+
+#killall xflux
+#xflux -z 94110 &
 #xcompmgr &
