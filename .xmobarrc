@@ -1,18 +1,19 @@
-Config { font = "xft:Sans-9:bold"
-       , bgColor = "black"
-       , fgColor = "grey"
-       , position = TopW L 95
+Config { font = "xft:Inconsolata for Powerline:size=11:antialias=true:hinting=full"
+       , additionalFonts = []
+       , bgColor = "#002b36"
+       , fgColor = "#839496"
+       , border = TopBM -1
+       , borderColor = "#002b36"
+       , borderWidth = 3
+       , position = TopW L 96
        , lowerOnStart = False
        , commands = [	Run StdinReader
-       							,	Run Network "eth0" ["-L","0","-H","32","--normal","green","--high","red"] 10
-                    , Run Network "wlan0" ["-L","0","-H","32","--normal","green","--high","red"] 10
-                    , Run Date "%a %b %_d %Y %I:%M:%S %p" "date" 10
-                    , Run Com "xmobar_net.sh" [] "net" 10
-                    , Run Com "xmobar_bat.sh" [] "batt" 10
-                    , Run Com "xmobar_vol.pl" [] "vol" 1
-                    , Run Com "days_till_jess.sh" [] "jess" 100
+       							,	Run Memory ["-t","ram <usedratio>%"] 10
+                    , Run Date "%b %_d %Y %I:%M:%S %p" "date" 10
+                    , Run Com "/home/will/.xmonad/bin/xmobar_pulse.sh" [] "vol" 10
                     ]
        , sepChar = "%"
        , alignSep = "}{"
-       , template = "%StdinReader%}{%jess%%net% | %vol% | %batt% | <fc=#ee9a00>%date%</fc>"
+       , template =
+       "<fc=#fdf6e3,#93a1a1>%StdinReader%</fc>}{<fc=#2aa198,#002b36></fc>%vol%<fc=#268bd2,#2aa198></fc><fc=#fdf6e3,#268bd2>%memory%</fc><fc=#93a1a1,#268bd2></fc><fc=#fdf6e3,#93a1a1> %date% </fc><fc=#002b36,#93a1a1></fc>"
        }

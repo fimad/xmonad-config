@@ -1,62 +1,72 @@
+{-# LANGUAGE UnicodeSyntax #-}
+import Data.Ratio ((%))
 import System.IO
 import System.Process
-import qualified Data.Map as M
-import Data.Ratio ((%))
-
 import XMonad
-import qualified XMonad.StackSet as W
-
-import XMonad.Util.Run
-import XMonad.Util.WorkspaceCompare
-import XMonad.Util.EZConfig
-
+import XMonad.Actions.CycleWS
+import XMonad.Actions.DynamicWorkspaces
+import XMonad.Actions.NoBorders
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.EwmhDesktops
 import XMonad.Hooks.ICCCMFocus
 import XMonad.Hooks.ManageDocks
-
-import XMonad.Actions.CycleWS
-import XMonad.Actions.NoBorders
-import XMonad.Actions.DynamicWorkspaces
-import XMonad.Actions.PhysicalScreens	as PS
-
 import XMonad.Layout
-import XMonad.Layout.IM
 import XMonad.Layout.Grid
-import XMonad.Layout.Reflect
-import XMonad.Layout.NoBorders
+import XMonad.Layout.IM
 import XMonad.Layout.LayoutHints
+import XMonad.Layout.Named
+import XMonad.Layout.NoBorders
 import XMonad.Layout.PerWorkspace
+import XMonad.Layout.Reflect
+import XMonad.Layout.Spacing
+import XMonad.Util.EZConfig
+import XMonad.Util.Run
+import XMonad.Util.WorkspaceCompare
+
+import qualified Data.Map as M
+import qualified XMonad.Actions.PhysicalScreens as PS
+import qualified XMonad.StackSet as W
 
 
-{-------------------------------------------------------------------------------
-  - View Layouts
--------------------------------------------------------------------------------}
-myImLayout = withIM (1%7) (Role "buddy_list") skypeLayout
-	where
-		skypeLayout = reflectHoriz
-		            $ withIM (1%7) skype Grid
-		skype = Title "fsmismynantidrug - Skype™ (Beta)"
-		        `Or` Title "Skype™ 2.2 (Beta) for Linux"
+--------------------------------------------------------------------------------
+-- View Layouts
 
-myGimpLayout = withIM (1%7) (Role "gimp-toolbox")
-             $ reflectHoriz
-             $ withIM (1%7) (Role "gimp-dock") Full
+myLayout = avoidStruts
+         $ onWorkspace "gimp" gimpLayout
+         $ onWorkspace "wine" fsLayout
+         $ standardLayout
+    where
+        spaced = spacing 10
 
--- A generic layout for views that should just be full screen
-myFSLayout = noBorders Full
+        tall = spaced $ Tall 1 (3 / 100) (1 / 2)
 
--- Use the standard layout for each of the
-myDefaultLayout = smartBorders $ layoutHints $ layoutHook defaultConfig
+        standardLayout =   fsLayout
+                       ||| named "tall" tall
+                       ||| named "wide" (Mirror tall)
+                       ||| named "grid" (spaced Grid)
+
+        fsLayout = named "full" $ noBorders Full
+
+        gimpLayout = named "gimp"
+                   $ withIM (1%7) (Role "gimp-toolbox")
+                   $ reflectHoriz
+                   $ withIM (1%7) (Role "gimp-dock") Full
 
 
-{-------------------------------------------------------------------------------
-  - Workspaces
--------------------------------------------------------------------------------}
+--------------------------------------------------------------------------------
+-- Workspaces
+
 myWorkspaces :: [String]
-myWorkspaces = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "IM", "Gimp", "Wine"]
+myWorkspaces = [
+        "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"
+    ,   "gimp", "wine"
+    ]
+
 myWorkspaceKeys :: [KeySym]
-myWorkspaceKeys = [xK_1, xK_2, xK_3, xK_4, xK_5, xK_6, xK_7, xK_8, xK_9, xK_0, xK_minus, xK_equal]
+myWorkspaceKeys = [
+        xK_1, xK_2, xK_3, xK_4, xK_5, xK_6, xK_7, xK_8, xK_9
+    ,   xK_0, xK_minus, xK_equal
+    ]
 
 
 {-------------------------------------------------------------------------------
@@ -66,64 +76,64 @@ myWorkspaceKeys = [xK_1, xK_2, xK_3, xK_4, xK_5, xK_6, xK_7, xK_8, xK_9, xK_0, x
 myManager = composeAll [
     title =? "xfce4-notifyd" --> doIgnore
   , title =? "html-hud" --> doFloat
-	, className =? "stalonetray" --> doIgnore
-	, className =? "net-minecraft-LauncherFrame" --> doFloat
+  , className =? "stalonetray" --> doIgnore
+  , className =? "net-minecraft-LauncherFrame" --> doFloat
 
-	-- Attempt to shove all of the instant messaging programs on to the IM space
-	, className =? "Pidgin" --> doShift "IM"
-	, className =? "Instantbird" --> doShift "IM"
-	, className =? "Skype" --> doShift "IM"
+  -- Attempt to shove all of the instant messaging programs on to the IM space
+  , className =? "Pidgin" --> doShift "IM"
+  , className =? "Instantbird" --> doShift "IM"
+  , className =? "Skype" --> doShift "IM"
 
-	-- Wine gets a whole space to its self it's so bad
-	, title =? "exe" --> doIgnore
-	, className =? "mb_warband.exe" --> doIgnore
-	, className =? "Wine" --> doFloat
-	, className =? "Wine" --> doWinify
+  -- Wine gets a whole space to its self it's so bad
+  , title =? "exe" --> doIgnore
+  , className =? "mb_warband.exe" --> doIgnore
+  , className =? "Wine" --> doFloat
+  , className =? "Wine" --> doWinify
 
-	-- Gimp
-	, className =? "Gimp" --> doShift "Gimp"
-	, stringProperty "WM_WINDOW_ROLE"  =? "gimp-scale-tool" --> doFloat
-	, stringProperty "WM_WINDOW_ROLE"  =? "gimp-shear-tool" --> doFloat
-	, stringProperty "WM_WINDOW_ROLE"  =? "gimp-rotate-tool" --> doFloat
-	, stringProperty "WM_WINDOW_ROLE"  =? "gimp-perspective-tool" --> doFloat
-	, stringProperty "WM_WINDOW_ROLE"  =? "gimp-flip-tool" --> doFloat
-	, stringProperty "WM_WINDOW_ROLE"  =? "gimp-layer-new" --> doFloat
-	]
+  -- Gimp
+  , className =? "Gimp" --> doShift "Gimp"
+  , stringProperty "WM_WINDOW_ROLE"  =? "gimp-scale-tool" --> doFloat
+  , stringProperty "WM_WINDOW_ROLE"  =? "gimp-shear-tool" --> doFloat
+  , stringProperty "WM_WINDOW_ROLE"  =? "gimp-rotate-tool" --> doFloat
+  , stringProperty "WM_WINDOW_ROLE"  =? "gimp-perspective-tool" --> doFloat
+  , stringProperty "WM_WINDOW_ROLE"  =? "gimp-flip-tool" --> doFloat
+  , stringProperty "WM_WINDOW_ROLE"  =? "gimp-layer-new" --> doFloat
+  ]
   where doWinify = doF (W.shift "Wine")
 
 {-------------------------------------------------------------------------------
   - Key bindings
 -------------------------------------------------------------------------------}
+
+spawnWebApp url = spawn $ "google-chrome --app='" ++ url ++ "'"
+
 myAdditionalKeys = [
   -- Print screen
     ((controlMask, xK_Print), spawn "sleep 0.2; scrot -s")
   , ((0, xK_Print), spawn "scrot")
 
-
   -- Commonly run programs
   , ((controlMask .|. mod1Mask, xK_bracketright), spawn "thunar")
   , ((controlMask .|. mod1Mask, xK_bracketleft), spawn "google-chrome")
   , ((controlMask .|. mod1Mask, xK_apostrophe), spawn "wicd-client -n")
-  , ((controlMask .|. mod1Mask, xK_Return), spawn "terminator")
+  , ((controlMask .|. mod1Mask, xK_Return), spawn "urxvt")
   , ((controlMask .|. mod1Mask, xK_backslash), spawn "gvim")
   , ((mod4Mask, xK_p), spawn "dmenu_run -nb '#002b36' -nf '#839496' -sb '#073642' -sf '#93a1a1' -fn '-*-fixed-*-*-*-*-*-*-*-*-*-*-*-*'")
   -- Don't use dmenu_run, using hmenu_run
   -- , ((mod4Mask, xK_p), spawn "hmenu_run")
 
+  -- Common web apps
+  , ((controlMask .|. mod4Mask, xK_i), spawnWebApp "http://inbox.google.com")
+  , ((controlMask .|. mod4Mask, xK_m), spawnWebApp "http://music.google.com")
+  , ((controlMask .|. mod4Mask, xK_d), spawnWebApp "http://drive.google.com")
+  , ((controlMask .|. mod4Mask, xK_c), spawnWebApp "http://calendar.google.com")
+  , ((controlMask .|. mod4Mask, xK_k), spawnWebApp "http://keep.google.com")
+  , ((controlMask .|. mod4Mask, xK_f), spawnWebApp "http://facebook.com")
+
   -- Audio Key configuration
   , ((controlMask .|. mod1Mask, xK_Page_Up), spawn "~/.xmonad/bin/pulse_control.pl -inc")
   , ((controlMask .|. mod1Mask, xK_Page_Down), spawn "~/.xmonad/bin/pulse_control.pl -dec")
   , ((controlMask .|. mod1Mask, xK_End), spawn "~/.xmonad/bin/pulse_control.pl -toggle")
-
-  -- MPD/C control, Note: set up $MPD_HOST to have all computers be a remote for
-  -- a main host.
-  , ((controlMask .|. mod4Mask, xK_space), spawn "mpc toggle")
-  , ((controlMask .|. mod4Mask, xK_n), spawn "mpc next")
-  , ((controlMask .|. mod4Mask, xK_p), spawn "mpc prev")
-  , ((controlMask .|. mod4Mask, xK_a), spawn "~/.xmonad/bin/mpc_adder.pl artist")
-  , ((controlMask .|. mod4Mask, xK_l), spawn "~/.xmonad/bin/mpc_adder.pl")
-  , ((controlMask .|. mod4Mask, xK_c), spawn "~/.xmonad/bin/mpc_chooser.pl")
-  , ((controlMask .|. mod4Mask, xK_k), spawn "mpc clear")
 
   -- Useful key strokes for dealing with apps that should go full screen but
   -- don't really.
@@ -155,34 +165,40 @@ myAdditionalKeys = [
 -------------------------------------------------------------------------------}
 main = do
   runCommand "/home/will/.xmonad/init.sh"
-  h <- spawnPipe "~/.xmonad/status_bar.pl"
+  h <- spawnPipe "xmobar"
   xmonad $ ewmh $ defaultConfig {
       focusedBorderColor = "#cb4b16"
     , normalBorderColor = "#002b36"
-    , borderWidth = 1
+    , borderWidth = 0
     , handleEventHook = fullscreenEventHook
     , manageHook = manageDocks <+> myManager
-    , layoutHook = avoidStruts
-                 $ onWorkspace "IM" myImLayout
-                 $ onWorkspace "Gimp" myGimpLayout
-                 $ onWorkspace "Wine" myFSLayout
-                 $ myDefaultLayout
+    , layoutHook = myLayout
     , workspaces = myWorkspaces
     , modMask = mod4Mask -- Use the window key
-    --, logHook = fadeInactiveLogHook (1%3)
-    --            >> (dynamicLogWithPP $ printStatusBar h)
     , logHook = takeTopFocus >> (dynamicLogWithPP $ printStatusBar h)
   } `removeKeys` map fst myAdditionalKeys `additionalKeys` myAdditionalKeys
 
 printStatusBar :: Handle -> PP
 printStatusBar h = defaultPP {
-    ppCurrent = (\c -> concat ["<CURRENT>[",c,"]</CURRENT>"])
-  , ppVisible = (\c -> concat ["<VISIBLE>(",c,")</VISIBLE>"])
-  , ppTitle   = (\c -> dzenEscape $ concat ["<TITLE>",c,"</TITLE>"])
-  , ppLayout  = (\c -> concat ["<LAYOUT>",c,"</LAYOUT>"])
-  , ppSep = " "
-  , ppOutput = hPutStrLn h
-}
+        ppCurrent = (\c -> concat ["<fc=#fdf6e3,#93a1a1> ",c,"</fc>"])
+      , ppVisible = (\c -> concat ["(",c,")"])
+      , ppHidden = (\c -> concat ["<fc=#073642,#93a1a1> ",c,"</fc>"])
+      , ppTitle   = (\c -> concat [
+                "<fc=#b58900,#073642>", leftSep
+            ,   "<fc=#839496,#073642> ", c, " "
+            ,   "<fc=#073642,#002b36>", leftSep
+            ,   "</fc></fc></fc>"
+            ])
+      , ppLayout  = (\c -> concat [
+                " <fc=#93a1a1,#b58900>", leftSep
+            ,   "<fc=#fdf6e3,#b58900>", c, "</fc></fc>"
+            ])
+      , ppWsSep = ""
+      , ppSep = ""
+      , ppOutput = hPutStrLn h
+    }
+    where
+        leftSep = "\57520"
 
 
 {-------------------------------------------------------------------------------
@@ -199,6 +215,4 @@ switchSecondScreen v = do
 -- Remove the border from a window
 rmBorder :: Window -> X ()
 rmBorder w = do
-  withDisplay $ \d -> io $ do
-        setWindowBorderWidth d w 0
-
+  withDisplay $ \d -> io $ setWindowBorderWidth d w 0

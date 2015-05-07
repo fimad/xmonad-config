@@ -16,24 +16,27 @@ use IO::Select;
 my $stdinSelect = IO::Select->new();
 $stdinSelect->add(\*STDIN);
 
-my $font = "-*-terminus-*-*-*--12-*-*-*-*-*-*-*";
+my $font = "'xft:Inconsolata for Powerline:size=11'";
+my $charWidth = 6;
 
-my $Xres = `xrandr 2>&1 | sed -r 's/[\\sx]+/ /g' | grep '*' | cut -d " " -f 4 -`;
-my $Yres = `xrandr 2>&1 | sed -r 's/[\\sx_]+/ /g' | grep '*' | cut -d " " -f 5 -`;
+my $Xres = `xrandr 2>&1 | sed -r 's/[\\sx]+/ /g' | grep '*+' | cut -d " " -f 4 -`;
+my $Yres = `xrandr 2>&1 | sed -r 's/[\\sx_]+/ /g' | grep '*+' | cut -d " " -f 5 -`;
 chomp $Xres;
 chomp $Yres;
 $Xres /=2 if( $Xres > 2000 ); #hack for multimonitors
 my $StatusBarWidth = $Xres - 75;
+my $StatusBarFullWidth = $Xres;
 my $StatusBarSections = [.35, .30, .35];
 
 my $StatusBarBG = "#002b36";
-my $StatusBarFG = "#839496";
+my $StatusBarLightBG = "#839496";
+my $StatusBarFG = "#eee8d5";
 
 my $Separator = " | ";
 my $SeparatorFG = "#073642";
 my $SeparatorBG = "$StatusBarBG";
 
-my $CurrentSpaceFG = "#b58900";
+my $CurrentSpaceFG = "#fdf6e3";
 my $CurrentSpaceBG = $StatusBarBG;
 my $OtherSpaceFG = "#6c71c4";
 my $OtherSpaceBG = "$StatusBarBG";
@@ -43,8 +46,8 @@ my $SpaceBG = $StatusBarBG;
 my $SpaceLayoutFG = "#cb4b16";
 my $SpaceLayoutBG = $StatusBarBG;
 
-my $WindowTitleFG = "#859900";
-my $WindowTitleBG = $StatusBarBG;
+my $WindowTitleFG = "#fdf6e3";
+my $WindowTitleBG = "#cb4b16";
 
 my $TimeFG = "#cb4b16";
 
@@ -60,6 +63,11 @@ my $VolumeUnmuted = "#eee8d5";
 
 my $MPDPlaying = '#859900';
 my $MPDStopped = '#dc322f';
+
+my $airline_left_sep = '';
+my $airline_left_alt_sep = '';
+my $airline_right_sep = '';
+my $airline_right_alt_sep = '';
 
 my %LayoutReplacements = (
     "Hinted Tall" => "|||"
@@ -275,16 +283,16 @@ sub getXmonadStatus{
     }
 #format the space layout
     $_xmonadStatus =~
-      s/<LAYOUT>([^\<]+)<\/LAYOUT>/^fg($SpaceLayoutFG)^bg($SpaceLayoutBG)$1^fg()^bg()/g;
+      s/<LAYOUT>([^\<]+)<\/LAYOUT>/^fg($SpaceLayoutFG)$1^fg()/g;
     $_xmonadStatus =~
-      s/<CURRENT>([^\<]+)<\/CURRENT>/^fg($CurrentSpaceFG)^bg($CurrentSpaceBG)$1^fg()^bg()/g;
+      s/<CURRENT>\[([^\<]+)\]<\/CURRENT>/^fg($CurrentSpaceFG)$1^fg()/g;
     $_xmonadStatus =~
-      s/<VISIBLE>([^\<]+)<\/VISIBLE>/^fg($OtherSpaceFG)^bg($OtherSpaceBG)$1^fg()^bg()/g;
+      s/<VISIBLE>([^\<]+)<\/VISIBLE>/^fg($OtherSpaceFG)$1^fg()/g;
     $_xmonadStatus =~
-      s/<TITLE>([^\<]*)<\/TITLE>/^fg($WindowTitleFG)^bg($WindowTitleBG)$1^fg()^bg()/g;
+      s/<TITLE>([^\<]*)<\/TITLE>/^fg($WindowTitleFG)^bg($WindowTitleBG)$1^fg()/g;
   }
 
-  return " $_xmonadStatus";
+  return "^bg($StatusBarLightBG) $_xmonadStatus^fg($StatusBarLightBG)^bg($StatusBarBG)$airline_left_sep^fg()^bg()";
 }
 
 
@@ -322,7 +330,7 @@ open(DZEN, "|-", "dzen2 -e '' -ta l -fn $font -bg '$StatusBarBG' -fg '$StatusBar
 DZEN->autoflush(1);
 
 my $irc_bar_y = $Yres-12;
-open(DZEN_IRC, "|-", "dzen2 -e '' -y $irc_bar_y -ta c -fn $font -bg '$StatusBarBG' -fg '$StatusBarFG' -tw '$StatusBarWidth'") or die ("Unable to start dzen");
+open(DZEN_IRC, "|-", "dzen2 -e '' -y $irc_bar_y -ta c -fn $font -bg '$StatusBarBG' -fg '$StatusBarFG' -tw '$StatusBarFullWidth'") or die ("Unable to start dzen");
 DZEN_IRC->autoflush(1);
 
 my $i = 0;
@@ -332,21 +340,22 @@ while( 1 ){
   my $time = "^fg($TimeFG)" . strftime('%a %b %_d %Y %I:%M:%S %p',localtime);
 
 #title window
-  my $irc_status = `tail -n 1 ~/Dropbox/irclogs/dangerbear/#greatestguys.log`;
+  my $irc_status = `tail -n 1 ~/.weechat/logs/irc.halfling.\#greatestguys.weechatlog | sed  's/\\t/ \| /g'`;
   print DZEN_IRC "^tw()$irc_status";
-  print DZEN "^tw()" . formatText(
-    $StatusBarSections
-    , [
-          $xmonad_status
-        , $mpd_status
-        , separate(
-            internet_all()
-          , volume
-          , battery
-          , $time
-          )
-      ]
-  );
+  print DZEN "^tw()$xmonad_status\n";
+#  print DZEN "^tw()" . formatText(
+#    $StatusBarSections
+#    , [
+#          $xmonad_status
+#        , $mpd_status
+#        , separate(
+#            internet_all()
+#          , volume
+#          , battery
+#          , $time
+#          )
+#      ]
+#  );
 
   usleep(500);
   $i++;
