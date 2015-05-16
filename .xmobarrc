@@ -10,7 +10,7 @@ Config { font = "xft:Inconsolata for Powerline:size=11:antialias=true:hinting=fu
        , commands = [	Run StdinReader
        							,	Run Memory ["-t","ram <usedratio>%"] 10
                     , Run Date "%b %_d %Y %I:%M:%S %p" "date" 10
-                    , Run Com "/home/will/.xmonad/bin/xmobar_pulse.sh" [] "vol" 10
+                    , Run Com "xmobar_pulse.sh" [] "vol" 10
                     ]
        , sepChar = "%"
        , alignSep = "}{"

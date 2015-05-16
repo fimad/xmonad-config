@@ -1,5 +1,6 @@
 {-# LANGUAGE UnicodeSyntax #-}
 import Data.Ratio ((%))
+import System.Environment
 import System.IO
 import System.Process
 import XMonad
@@ -164,8 +165,9 @@ myAdditionalKeys = [
   - Put all the pieces together
 -------------------------------------------------------------------------------}
 main = do
-  runCommand "/home/will/.xmonad/init.sh"
-  h <- spawnPipe "xmobar"
+  home <- getEnv "HOME"
+  runCommand (home ++ "/.xmonad/init.sh")
+  h <- spawnPipe "xmobar -x 1"
   xmonad $ ewmh $ defaultConfig {
       focusedBorderColor = "#cb4b16"
     , normalBorderColor = "#002b36"
@@ -181,7 +183,7 @@ main = do
 printStatusBar :: Handle -> PP
 printStatusBar h = defaultPP {
         ppCurrent = (\c -> concat ["<fc=#fdf6e3,#93a1a1> ",c,"</fc>"])
-      , ppVisible = (\c -> concat ["(",c,")"])
+      , ppVisible = (\c -> concat ["<fc=#073642,#93a1a1> (",c,")</fc>"])
       , ppHidden = (\c -> concat ["<fc=#073642,#93a1a1> ",c,"</fc>"])
       , ppTitle   = (\c -> concat [
                 "<fc=#b58900,#073642>", leftSep

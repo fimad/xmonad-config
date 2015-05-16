@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 #Set up background
 #hsetroot -solid "#002b36" -center ~/.xmonad/lambda.png
@@ -17,17 +17,15 @@ killall skype
 skype &
 
 killall dzen2
-$HOME/.xmonad/bin/irc-status-bar.hs \
+ghc \
+  $HOME/.xmonad/bin/irc-status-bar.hs \
+  -o $HOME/.xmonad/bin/irc-status-bar 2> ~/.xmonad/irc-status-bar.errors
+$HOME/.xmonad/bin/irc-status-bar \
   '#greatestguys' \
   "$HOME/.weechat/logs/irc.halfling.#greatestguys.weechatlog" \
-  'will:' '@will' 'fimad' 2> ~/.xmonad/irc-status-bar.errors
+  'will:' '@will' 'fimad' 2>> ~/.xmonad/irc-status-bar.errors
 
-#killall xflux
-#xflux -z 94110 &
 killall compton
-#compton -c -f -o 1.0 -I 0.1 -O 0.1 -C -z --vsync opengl-swc \
-#  --paint-on-overlay --backend glx --shadow-exclude "name~='.*'" -b \
-#  --use-ewmh-active-win --glx-no-stencil
 
 # -c  enable shadows
 # -f  fade windows in and out

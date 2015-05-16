@@ -1,4 +1,4 @@
-#!/opt/ghc/7.8.4/bin/runhaskell
+#!/usr/bin/env runhaskell
 
 {-# LANGUAGE RecordWildCards #-}
 
@@ -79,6 +79,7 @@ spawnDzen2 = do
             ,   " -fn '", font, "'"
             ,   " -fg '#839496'"
             ,   " -bg '#002b36'"
+            ,   " -xs 2"
             ]
 
 usageError :: SomeException -> IO a
