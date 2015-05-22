@@ -11,7 +11,7 @@ killall stalonetray
 stalonetray &
 
 killall redshift
-redshift -l 37.7749:-122.4194 &
+redshift &
 
 killall skype
 skype &

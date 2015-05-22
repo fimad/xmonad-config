@@ -15,4 +15,4 @@ fi
 
 volume="$($PULSE_CONTROL -volume)"
 
-echo "<fc=${WHITE},${BG}>vol </fc><fc=${color},${BG}>${volume}</fc>"
+echo "<fc=${WHITE},${BG}><fn=1>🔈</fn> </fc><fc=${color},${BG}>${volume}</fc>"

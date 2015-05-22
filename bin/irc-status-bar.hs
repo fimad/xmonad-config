@@ -71,7 +71,7 @@ spawnDzen2 = do
     (Just stdin, _, _, _) <- createProcess (shell dzen2){std_in = CreatePipe}
     return stdin
     where
-        font = "Inconsolata for Powerline:size=11"
+        font = "Inconsolata for Powerline:size=13"
         dzen2 = concat [
                 "dzen2"
             ,   " -ta l"  -- Text align left.

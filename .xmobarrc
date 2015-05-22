@@ -1,5 +1,7 @@
-Config { font = "xft:Inconsolata for Powerline:size=11:antialias=true:hinting=full"
-       , additionalFonts = []
+Config { font = "xft:Inconsolata for Powerline:size=13:antialias=true:hinting=full"
+       , additionalFonts = [
+             "xft:Symbola:size=14:style=Regular:antialias=true:hinting=full"
+           ]
        , bgColor = "#002b36"
        , fgColor = "#839496"
        , border = TopBM -1
@@ -7,13 +9,20 @@ Config { font = "xft:Inconsolata for Powerline:size=11:antialias=true:hinting=fu
        , borderWidth = 3
        , position = TopW L 96
        , lowerOnStart = False
-       , commands = [	Run StdinReader
-       							,	Run Memory ["-t","ram <usedratio>%"] 10
-                    , Run Date "%b %_d %Y %I:%M:%S %p" "date" 10
+       , commands = [
+                      Run StdinReader
+                    , Run Memory ["-t","ram <usedratio>%"] 10
+                    , Run Date "%b %_d %I:%M:%S %p" "date" 10
                     , Run Com "xmobar_pulse.sh" [] "vol" 10
+                    , Run Battery [
+                        "-t", "<fn=1>⚡</fn> <acstatus>"
+                      , "--", "-O", "<left>% (<timeleft>)"
+                      , "-i", "<left>%"
+                      , "-o", "<fc=#002b36,#6c71c4><left>% (<timeleft>)</fc>"
+                      ] 100
                     ]
        , sepChar = "%"
        , alignSep = "}{"
        , template =
-       "<fc=#fdf6e3,#93a1a1>%StdinReader%</fc>}{<fc=#2aa198,#002b36></fc>%vol%<fc=#268bd2,#2aa198></fc><fc=#fdf6e3,#268bd2>%memory%</fc><fc=#93a1a1,#268bd2></fc><fc=#fdf6e3,#93a1a1> %date% </fc><fc=#002b36,#93a1a1></fc>"
+       "<fc=#fdf6e3,#93a1a1>%StdinReader%</fc>}{<fc=#6c71c4,#002b36></fc><fc=#fdf6e3,#6c71c4>%battery%</fc><fc=#2aa198,#6c71c4></fc>%vol%<fc=#268bd2,#2aa198></fc><fc=#fdf6e3,#268bd2>%memory%</fc><fc=#93a1a1,#268bd2></fc><fc=#fdf6e3,#93a1a1> %date% </fc><fc=#002b36,#93a1a1></fc>"
        }
