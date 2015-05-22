@@ -108,6 +108,14 @@ myManager = composeAll [
 
 spawnWebApp url = spawn $ "google-chrome --app='" ++ url ++ "'"
 
+spawnChromeApp app =  spawn
+                   $  "google-chrome "
+                   ++ "--app-id=" ++ app ++ " "
+                   ++ "--profile-directory=Default"
+
+chromeShellApp = "pnhechapfaindjhompbnflcldabbghjo"
+chromeRemoteApp =  "gbchcmhmhahfdphkhkmpfmihenigjmpp"
+
 myAdditionalKeys = [
   -- Print screen
     ((controlMask, xK_Print), spawn "sleep 0.2; scrot -s")
@@ -130,6 +138,10 @@ myAdditionalKeys = [
   , ((controlMask .|. mod4Mask, xK_c), spawnWebApp "http://calendar.google.com")
   , ((controlMask .|. mod4Mask, xK_k), spawnWebApp "http://keep.google.com")
   , ((controlMask .|. mod4Mask, xK_f), spawnWebApp "http://facebook.com")
+
+  -- Common chrome apps
+  , ((controlMask .|. mod4Mask, xK_Return), spawnChromeApp chromeShellApp)
+  , ((controlMask .|. mod4Mask, xK_r), spawnChromeApp chromeRemoteApp)
 
   -- Audio Key configuration
   , ((controlMask .|. mod1Mask, xK_Page_Up), spawn "~/.xmonad/bin/pulse_control.pl -inc")
