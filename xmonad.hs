@@ -148,6 +148,10 @@ myAdditionalKeys = [
   , ((controlMask .|. mod1Mask, xK_Page_Down), spawn "~/.xmonad/bin/pulse_control.pl -dec")
   , ((controlMask .|. mod1Mask, xK_End), spawn "~/.xmonad/bin/pulse_control.pl -toggle")
 
+  -- Screen brightness configuration
+  , ((controlMask .|. mod4Mask, xK_Page_Up), spawn "xbacklight -inc 10")
+  , ((controlMask .|. mod4Mask, xK_Page_Down), spawn "xbacklight -dec 10")
+
   -- Useful key strokes for dealing with apps that should go full screen but
   -- don't really.
   , ((mod4Mask, xK_b), withFocused toggleBorder )

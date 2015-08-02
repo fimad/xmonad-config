@@ -4,17 +4,19 @@
 #hsetroot -solid "#002b36" -center ~/.xmonad/lambda.png
 hsetroot -solid "#002b36"
 
+IBUS_ENABLE_SYNC_MODE=1 ibus-daemon -xrd
+
 #disable the tap to click
 synclient TapButton1=0
+
+killall nm-applet
+nm-applet &
 
 killall stalonetray
 stalonetray &
 
 killall redshift
-redshift &
-
-killall skype
-skype &
+redshift -l 37.7833:122.4167 &
 
 killall dzen2
 ghc \
