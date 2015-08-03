@@ -33,7 +33,7 @@ parseIRCLine = do
     _    <- many1 $ oneOf ws
     nick <- many1 $ noneOf ws
     _    <- many1 $ oneOf ws
-    msg  <- many1 $ noneOf "\n\r"
+    msg  <- many  $ noneOf "\n\r"
     _    <- many1 $ endOfLine
     return $ IRCLine date time nick msg
     where ws = " \t"
@@ -71,7 +71,7 @@ spawnDzen2 = do
     (Just stdin, _, _, _) <- createProcess (shell dzen2){std_in = CreatePipe}
     return stdin
     where
-        font = "Inconsolata for Powerline:size=13"
+        font = "Inconsolata for Powerline:size=11"
         dzen2 = concat [
                 "dzen2"
             ,   " -ta l"  -- Text align left.
